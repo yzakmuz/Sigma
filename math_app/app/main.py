@@ -13,12 +13,19 @@ from math_app.core.models import (
 )
 from math_app.core.repository import LessonRepository, get_repository
 from math_app.core.exceptions import MathAPIException, LessonNotFound
+from math_app.scripts.seed_lessons import seed_lessons
 
 app = FastAPI(
     title="Math Teaching API",
     description="A simplified backend for teaching math progressively",
     version="0.1.0",
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Seed the database with sample lessons on startup."""
+    seed_lessons()
 
 
 @app.exception_handler(MathAPIException)
