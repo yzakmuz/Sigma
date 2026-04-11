@@ -1,4 +1,5 @@
 """FastAPI application for the Math Teaching System."""
+
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
@@ -41,7 +42,13 @@ async def list_lessons(
     level: LevelEnum | None = Query(None, description="Filter by difficulty level"),
     repository: LessonRepository = Depends(get_repository),
 ):
-    """List all lessons with optional filtering."""
+    """
+    List all lessons with optional filtering.
+
+    Query Parameters:
+    - topic: Filter by topic (arithmetic, algebra, geometry)
+    - level: Filter by level (beginner, intermediate, advanced)
+    """
     return repository.list(
         topic=topic.value if topic else None,
         level=level.value if level else None,
@@ -53,7 +60,16 @@ async def create_lesson(
     lesson_create: LessonCreate,
     repository: LessonRepository = Depends(get_repository),
 ):
-    """Create a new lesson with problems."""
+    """
+    Create a new lesson with problems.
+
+    Request body must include:
+    - title: Lesson title
+    - description: Lesson description
+    - topic: Math topic (arithmetic, algebra, geometry)
+    - level: Difficulty level (beginner, intermediate, advanced)
+    - problems: List of problems with question, answer, difficulty, and optional hint
+    """
     if not lesson_create.title or not lesson_create.title.strip():
         raise HTTPException(status_code=422, detail="Title cannot be empty")
 
@@ -79,11 +95,21 @@ async def update_lesson(
     lesson_update: LessonUpdate,
     repository: LessonRepository = Depends(get_repository),
 ):
-    """Update a lesson."""
+    """
+    Update a lesson.
+
+    Provide any of the following fields to update:
+    - title
+    - description
+    - topic
+    - level
+    - problems (replaces entire problem list)
+    """
     lesson = repository.read(lesson_id)
     if not lesson:
         raise LessonNotFound(lesson_id)
 
+    # Validate that at least one field is provided
     if not any(
         [
             lesson_update.title,
@@ -104,11 +130,16 @@ async def delete_lesson(
     lesson_id: str,
     repository: LessonRepository = Depends(get_repository),
 ):
-    """Delete a lesson."""
+    """
+    Delete a lesson.
+
+    Returns a 204 No Content response on success.
+    """
     if not repository.delete(lesson_id):
         raise LessonNotFound(lesson_id)
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
