@@ -1,0 +1,253 @@
+### Math Teaching API – REST Client Playground
+### Use with VS Code REST Client extension or Postman
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+### Health Check
+GET {{baseUrl}}/health
+
+###
+
+### ============================================
+### CRUD Operations - Create, Read, Update, Delete
+### ============================================
+
+### 1. Create Basic Addition Lesson
+POST {{baseUrl}}/lessons
+Content-Type: {{contentType}}
+
+{
+  "title": "Basic Addition",
+  "description": "Learn simple addition with single digits",
+  "topic": "arithmetic",
+  "level": "beginner",
+  "problems": [
+    {
+      "question": "What is 2 + 3?",
+      "answer": "5",
+      "difficulty": "beginner",
+      "hint": "Count on your fingers"
+    },
+    {
+      "question": "What is 5 + 4?",
+      "answer": "9",
+      "difficulty": "beginner",
+      "hint": "Count on your fingers"
+    }
+  ]
+}
+
+###
+
+### 2. Create Algebra Lesson
+POST {{baseUrl}}/lessons
+Content-Type: {{contentType}}
+
+{
+  "title": "Linear Equations",
+  "description": "Solve equations of the form ax + b = c",
+  "topic": "algebra",
+  "level": "intermediate",
+  "problems": [
+    {
+      "question": "Solve: 2x + 3 = 7",
+      "answer": "2",
+      "difficulty": "intermediate",
+      "hint": "Subtract 3 from both sides"
+    }
+  ]
+}
+
+###
+
+### 3. Create Geometry Lesson
+POST {{baseUrl}}/lessons
+Content-Type: {{contentType}}
+
+{
+  "title": "Basic Geometry",
+  "description": "Calculate area of simple shapes",
+  "topic": "geometry",
+  "level": "beginner",
+  "problems": [
+    {
+      "question": "What is the area of a square with side 5?",
+      "answer": "25",
+      "difficulty": "beginner",
+      "hint": "Area = side × side"
+    }
+  ]
+}
+
+###
+
+### ============================================
+### List Lessons
+### ============================================
+
+### 4. List All Lessons
+GET {{baseUrl}}/lessons
+
+###
+
+### 5. List Only Arithmetic Lessons
+GET {{baseUrl}}/lessons?topic=arithmetic
+
+###
+
+### 6. List Only Algebra Lessons
+GET {{baseUrl}}/lessons?topic=algebra
+
+###
+
+### 7. List Only Geometry Lessons
+GET {{baseUrl}}/lessons?topic=geometry
+
+###
+
+### 8. List Beginner Lessons
+GET {{baseUrl}}/lessons?level=beginner
+
+###
+
+### 9. List Intermediate Lessons
+GET {{baseUrl}}/lessons?level=intermediate
+
+###
+
+### 10. List Arithmetic + Beginner Lessons
+GET {{baseUrl}}/lessons?topic=arithmetic&level=beginner
+
+###
+
+### ============================================
+### Get Specific Lesson (replace {id} with actual ID)
+### ============================================
+### Note: After creating a lesson, copy its ID from the response
+
+### 11. Get Specific Lesson
+### Replace {lesson_id} with an actual ID from the create response
+GET {{baseUrl}}/lessons/REPLACE_WITH_LESSON_ID
+
+###
+
+### ============================================
+### Update Lesson (replace {id} with actual ID)
+### ============================================
+
+### 12. Update Lesson Title
+PUT {{baseUrl}}/lessons/REPLACE_WITH_LESSON_ID
+Content-Type: {{contentType}}
+
+{
+  "title": "Advanced Addition Techniques"
+}
+
+###
+
+### 13. Update Lesson Level
+PUT {{baseUrl}}/lessons/REPLACE_WITH_LESSON_ID
+Content-Type: {{contentType}}
+
+{
+  "level": "intermediate"
+}
+
+###
+
+### 14. Update Lesson Problems
+PUT {{baseUrl}}/lessons/REPLACE_WITH_LESSON_ID
+Content-Type: {{contentType}}
+
+{
+  "problems": [
+    {
+      "question": "What is 10 + 10?",
+      "answer": "20",
+      "difficulty": "beginner"
+    }
+  ]
+}
+
+###
+
+### ============================================
+### Delete Lesson (replace {id} with actual ID)
+### ============================================
+
+### 15. Delete Lesson
+DELETE {{baseUrl}}/lessons/REPLACE_WITH_LESSON_ID
+
+###
+
+### ============================================
+### Error Cases (Test These Too!)
+### ============================================
+
+### 16. Invalid Topic (Should Return 422)
+POST {{baseUrl}}/lessons
+Content-Type: {{contentType}}
+
+{
+  "title": "Invalid Lesson",
+  "description": "This has an invalid topic",
+  "topic": "biology",
+  "level": "beginner",
+  "problems": []
+}
+
+###
+
+### 17. Invalid Level (Should Return 422)
+POST {{baseUrl}}/lessons
+Content-Type: {{contentType}}
+
+{
+  "title": "Invalid Lesson",
+  "description": "This has an invalid level",
+  "topic": "arithmetic",
+  "level": "expert",
+  "problems": []
+}
+
+###
+
+### 18. Get Nonexistent Lesson (Should Return 404)
+GET {{baseUrl}}/lessons/nonexistent-id-12345
+
+###
+
+### 19. Delete Nonexistent Lesson (Should Return 404)
+DELETE {{baseUrl}}/lessons/nonexistent-id-12345
+
+###
+
+### 20. Update with No Fields (Should Return 422)
+PUT {{baseUrl}}/lessons/REPLACE_WITH_LESSON_ID
+Content-Type: {{contentType}}
+
+{
+}
+
+###
+
+### ============================================
+### Tips for Using This File
+### ============================================
+###
+### 1. VS Code: Install "REST Client" extension by Huachao Mao
+###    Then click "Send Request" above each request block
+###
+### 2. Postman: Copy-paste each request block into Postman
+###
+### 3. Before running update/delete requests:
+###    - First run a CREATE request and copy the ID from the response
+###    - Replace "REPLACE_WITH_LESSON_ID" with the actual ID
+###
+### 4. Test the flow:
+###    → Create (POST) → List (GET) → Get (GET) → Update (PUT) → Delete (DELETE)
+###
+### 5. Check error cases to verify validation:
+###    → Invalid topic → Invalid level → Nonexistent resources
+###
