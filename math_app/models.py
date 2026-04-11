@@ -1,15 +1,12 @@
 """Data models for the Math Teaching API."""
-
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
 class TopicEnum(str, Enum):
     """Math topics supported by the system."""
-
     ARITHMETIC = "arithmetic"
     ALGEBRA = "algebra"
     GEOMETRY = "geometry"
@@ -17,7 +14,6 @@ class TopicEnum(str, Enum):
 
 class LevelEnum(str, Enum):
     """Difficulty levels for lessons."""
-
     BEGINNER = "beginner"
     INTERMEDIATE = "intermediate"
     ADVANCED = "advanced"
@@ -25,7 +21,6 @@ class LevelEnum(str, Enum):
 
 class Problem(BaseModel):
     """A single math problem."""
-
     id: str = Field(..., description="Unique problem identifier")
     question: str = Field(..., description="The problem statement")
     answer: str = Field(..., description="The correct answer")
@@ -35,7 +30,6 @@ class Problem(BaseModel):
 
 class ProblemCreate(BaseModel):
     """Input schema for creating a problem."""
-
     question: str = Field(..., min_length=1, description="The problem statement")
     answer: str = Field(..., min_length=1, description="The correct answer")
     difficulty: LevelEnum = Field(..., description="Problem difficulty")
@@ -44,7 +38,6 @@ class ProblemCreate(BaseModel):
 
 class Lesson(BaseModel):
     """A lesson containing one or more math problems."""
-
     id: str = Field(..., description="Unique lesson identifier")
     title: str = Field(..., description="Lesson title")
     description: str = Field(..., description="Lesson description")
@@ -56,19 +49,15 @@ class Lesson(BaseModel):
 
 class LessonCreate(BaseModel):
     """Input schema for creating a lesson."""
-
     title: str = Field(..., min_length=1, max_length=200, description="Lesson title")
     description: str = Field(..., min_length=1, description="Lesson description")
     topic: TopicEnum = Field(..., description="Math topic")
     level: LevelEnum = Field(..., description="Overall difficulty level")
-    problems: list[ProblemCreate] = Field(
-        default_factory=list, description="Initial problems for the lesson"
-    )
+    problems: list[ProblemCreate] = Field(default_factory=list, description="Initial problems for the lesson")
 
 
 class LessonUpdate(BaseModel):
     """Input schema for updating a lesson."""
-
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, min_length=1)
     topic: Optional[TopicEnum] = None
@@ -78,7 +67,6 @@ class LessonUpdate(BaseModel):
 
 class LessonResponse(BaseModel):
     """Response schema for lesson endpoints."""
-
     id: str
     title: str
     description: str
