@@ -1,0 +1,45 @@
+{
+  "lessons": [
+    {
+      "id": "lesson-001",
+      "title": "Basic Addition",
+      "description": "Learn simple addition with single-digit numbers",
+      "topic": "arithmetic",
+      "level": "beginner",
+      "problems": [
+        {
+          "id": "problem-001",
+          "question": "What is 2 + 3?",
+          "answer": "5",
+          "difficulty": "beginner",
+          "hint": "Count on your fingers"
+        },
+        {
+          "id": "problem-002",
+          "question": "What is 5 + 4?",
+          "answer": "9",
+          "difficulty": "beginner",
+          "hint": "Start with 5 and count 4 more"
+        }
+      ],
+      "created_at": "2024-01-15T10:30:00"
+    },
+    {
+      "id": "lesson-002",
+      "title": "Linear Equations",
+      "description": "Solve equations of the form ax + b = c",
+      "topic": "algebra",
+      "level": "intermediate",
+      "problems": [
+        {
+          "id": "problem-003",
+          "question": "Solve: 2x + 3 = 7",
+          "answer": "2",
+          "difficulty": "intermediate",
+          "hint": "Subtract 3 from both sides, then divide by 2"
+        }
+      ],
+      "created_at": "2024-01-15T10:35:00"
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 """In-memory repository for lessons."""
 
+import json
 import uuid
 from datetime import datetime
+from pathlib import Path
 
 from .models import Lesson, LessonCreate, LessonUpdate, Problem, ProblemCreate
 
@@ -10,8 +12,40 @@ class LessonRepository:
     """In-memory repository for managing lessons."""
 
     def __init__(self):
-        """Initialize the repository with an empty lessons store."""
+        """Initialize the repository and load sample data if available."""
         self._lessons: dict[str, Lesson] = {}
+        self._load_sample_data()
+
+    def _load_sample_data(self) -> None:
+        """Load sample lessons from sample_db.json if it exists."""
+        db_path = Path(__file__).parent.parent.parent / "sample_db.json"
+        if db_path.exists():
+            try:
+                with open(db_path, "r") as f:
+                    data = json.load(f)
+                    for lesson_data in data.get("lessons", []):
+                        problems = [
+                            Problem(
+                                id=p["id"],
+                                question=p["question"],
+                                answer=p["answer"],
+                                difficulty=p["difficulty"],
+                                hint=p.get("hint"),
+                            )
+                            for p in lesson_data.get("problems", [])
+                        ]
+                        lesson = Lesson(
+                            id=lesson_data["id"],
+                            title=lesson_data["title"],
+                            description=lesson_data["description"],
+                            topic=lesson_data["topic"],
+                            level=lesson_data["level"],
+                            problems=problems,
+                            created_at=datetime.fromisoformat(lesson_data["created_at"]),
+                        )
+                        self._lessons[lesson.id] = lesson
+            except Exception as e:
+                print(f"Warning: Could not load sample data: {e}")
 
     def create(self, lesson_create: LessonCreate) -> Lesson:
         """
