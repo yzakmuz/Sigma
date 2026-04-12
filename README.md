@@ -51,6 +51,9 @@ ex1_math/
 │   └── lessons.http           # REST Client requests
 ├── sample_db.json             # Sample data (auto-loaded on startup)
 ├── pyproject.toml             # Project metadata and dependencies
+├── Dockerfile                 # Docker container definition
+├── docker-compose.yml         # Docker Compose orchestration
+├── .dockerignore               # Files to exclude from Docker build
 ├── README.md                  # This file
 └── .gitignore                 # Git ignore rules
 ```
@@ -105,7 +108,9 @@ python -c "import fastapi; print('FastAPI installed:', fastapi.__version__)"
 
 ## Running the API
 
-### Start the Development Server
+### Option 1: Local Development (without Docker)
+
+#### Start the Development Server
 ```bash
 # Using uv:
 uv run uvicorn math_app.app.main:app --reload
@@ -120,6 +125,49 @@ The API will be available at:
 - **ReDoc**: `http://localhost:8000/redoc`
 
 **Note:** The API automatically loads sample data from `sample_db.json` on startup, so you can immediately test the endpoints without additional setup.
+
+---
+
+### Option 2: Docker Deployment
+
+#### Start with Docker Compose
+```bash
+# Build and run the container with live reload
+docker-compose up
+
+# Or build in the background
+docker-compose up -d
+```
+
+The API will be available at the same endpoints:
+- **Base URL**: `http://localhost:8000`
+- **Swagger UI**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
+
+#### Build Docker Image Manually
+```bash
+# Build the image
+docker build -t math-teaching-api:latest .
+
+# Run the container
+docker run -p 8000:8000 math-teaching-api:latest
+```
+
+#### Using Docker (Production Mode - without reload)
+```bash
+# For production, build and run without the --reload flag
+docker build -f Dockerfile -t math-teaching-api:v1 .
+docker run -p 8000:8000 math-teaching-api:v1
+```
+
+#### Docker Compose Configuration
+- **Image**: Built from `Dockerfile`
+- **Container name**: `math_teaching_api`
+- **Port mapping**: `8000:8000`
+- **Volumes**: Current directory mounted for live code reload during development
+- **Environment**: `PYTHONUNBUFFERED=1` for real-time logging
+
+---
 
 
 ### Example API Requests
@@ -404,6 +452,39 @@ This project was developed with AI assistance from GitHub Copilot. All outputs w
 ---
 
 ## Troubleshooting
+
+### Docker Issues
+
+#### Container won't start
+```bash
+# Check logs for errors
+docker-compose logs api
+
+# Rebuild the image
+docker-compose build --no-cache
+docker-compose up
+```
+
+#### Port 8000 already in use (Docker)
+```bash
+# Modify docker-compose.yml to use a different port:
+# Change "8000:8000" to "8001:8000"
+# Then restart
+docker-compose down
+docker-compose up
+```
+
+#### Clear Docker resources
+```bash
+# Stop all containers
+docker-compose down
+
+# Remove the container and image
+docker remove math_teaching_api
+docker image rm math-teaching-api:latest
+```
+
+---
 
 ### Port Already in Use
 If port 8000 is already in use:
