@@ -30,6 +30,27 @@ async def math_api_exception_handler(request: Request, exc: MathAPIException):
     )
 
 
+@app.get("/", tags=["root"])
+async def root():
+    """Welcome endpoint with available endpoints."""
+    return {
+        "message": "Welcome to the Math Teaching API",
+        "endpoints": {
+            "documentation": "/docs",
+            "openapi_schema": "/openapi.json",
+            "health_check": "/health",
+            "lessons": {
+                "list_all": "GET /lessons",
+                "list_filtered": "GET /lessons?topic=arithmetic&level=beginner",
+                "create": "POST /lessons",
+                "get_by_id": "GET /lessons/{lesson_id}",
+                "update": "PUT /lessons/{lesson_id}",
+                "delete": "DELETE /lessons/{lesson_id}",
+            },
+        },
+    }
+
+
 @app.get("/health", tags=["health"])
 async def health_check():
     """Check if the API is running."""
