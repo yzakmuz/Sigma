@@ -74,3 +74,37 @@ class LessonResponse(BaseModel):
     level: LevelEnum
     problems: list[Problem]
     created_at: datetime
+
+    class Config:
+        from_attributes = True  # Allow loading from ORM objects
+
+
+class UserResponse(BaseModel):
+    """Response schema for user endpoints."""
+    id: str
+    email: str
+    username: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ProgressStatusEnum(str, Enum):
+    """Status of user progress on a lesson."""
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+
+
+class UserProgressResponse(BaseModel):
+    """Response schema for user progress endpoints."""
+    id: str
+    user_id: str
+    lesson_id: str
+    status: ProgressStatusEnum
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
