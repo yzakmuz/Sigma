@@ -21,7 +21,6 @@ A simplified FastAPI backend for teaching mathematics progressively, from basic 
 - ✅ 25+ comprehensive pytest test cases (80%+ coverage)
 - ✅ RESTful API with OpenAPI/Swagger documentation
 - ✅ Sample data loaded from JSON on startup (no extra setup needed)
-- ✅ Seed script for generating larger datasets (bonus)
 - ✅ REST Client `.http` playground (bonus)
 
 ---
@@ -41,8 +40,7 @@ ex1_math/
 │   │   ├── __init__.py
 │   │   └── main.py            # FastAPI app and endpoints
 │   ├── scripts/
-│   │   ├── __init__.py
-│   │   └── seed_lessons.py    # Populate sample lessons (optional, for manual seeding)
+│   │   └── __init__.py
 │   └── tests/
 │       ├── __init__.py
 │       ├── conftest.py        # pytest fixtures and setup
@@ -300,19 +298,7 @@ To add more sample lessons, edit `sample_db.json`:
 
 After modifying, restart the API to reload the changes.
 
-### 2. Seed Script (Optional)
-For generating larger datasets, use the seed script:
-```bash
-# Using uv:
-uv run python -m math_app.scripts.seed_lessons
-
-# Or with activated venv:
-python -m math_app.scripts.seed_lessons
-```
-
-This populates the in-memory repository with 7 sample lessons across all topics and levels.
-
-### 3. REST Client Playground
+### 2. REST Client Playground
 Use the `.http` file with VS Code REST Client extension or Postman:
 
 ```bash
@@ -426,31 +412,6 @@ uv run pytest math_app/tests/ -v --tb=short
 
 ---
 
-## Future Enhancements (EX2 & EX3)
-
-### EX2 – UI Layer
-- Streamlit dashboard for interactive lesson browsing
-- Command-line interface with Typer
-- Reuse this backend API with no modifications
-
-### EX3 – Full Stack Integration
-- Replace in-memory storage with SQLite/SQLModel
-- Add database migrations and seed scripts
-- Implement async background workers with Redis
-- Add security (JWT authentication, hashed passwords)
-- Deploy with Docker Compose
-
----
-
-## AI Assistance Notes
-
-This project was developed with AI assistance from GitHub Copilot. All outputs were:
-- Verified to match the exercise requirements
-- Tested locally before committing
-- Validated against the EX1 rubric (correctness 40%, simplicity 20%, tests 20%, docs 20%)
-
----
-
 ## Troubleshooting
 
 ### Docker Issues
@@ -536,4 +497,4 @@ This project is part of the EASS-HIT course (Exercise 1) and is provided as-is f
 
 **Version**: 0.1.0  
 **Last Updated**: April 2026  
-**Author**: Student (with AI assistance)
+**Author**: Student
