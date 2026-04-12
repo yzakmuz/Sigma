@@ -14,19 +14,20 @@ A simplified FastAPI backend for teaching mathematics progressively, from basic 
 
 ### Key Features
 
+- ✅ **Authentication System**: JWT-based user registration, login, and profile
 - ✅ Full CRUD operations on lessons and problems
 - ✅ Topic-based organization (arithmetic, algebra, geometry)
 - ✅ Difficulty levels (beginner, intermediate, advanced)
-- ✅ Data validation with Pydantic
+- ✅ Data validation with Pydantic + email validation
 - ✅ Custom error handling and HTTP exceptions
 - ✅ MySQL database with SQLAlchemy ORM
 - ✅ Database migrations with Alembic
-- ✅ User progress tracking (session-ready for authentication)
-- ✅ 25+ comprehensive pytest test cases (80%+ coverage)
+- ✅ User accounts with password hashing (bcrypt)
+- ✅ User progress tracking (lesson-level, ready for problem-level)
+- ✅ 10+ comprehensive pytest test cases
 - ✅ RESTful API with OpenAPI/Swagger documentation
 - ✅ Sample data auto-seeded on startup
 - ✅ Docker + Docker Compose for containerized deployment
-- ✅ REST Client `.http` playground
 
 ---
 
@@ -219,12 +220,46 @@ docker run -p 8000:8000 \
 
 ### Example API Requests
 
-#### 1. Health Check
+#### 1. User Authentication
+
+**Register a new user:**
+```bash
+curl -X POST http://localhost:8000/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "username": "myuser",
+    "password": "SecurePass123"
+  }'
+```
+Response: `{access_token, token_type: "bearer", user_id, username}`
+
+**Login with existing user:**
+```bash
+curl -X POST http://localhost:8000/auth/signin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "myuser",
+    "password": "SecurePass123"
+  }'
+```
+Response: `{access_token, token_type: "bearer", user_id, username}`
+
+**Get current user profile (authenticated):**
+```bash
+curl http://localhost:8000/auth/me \
+  -H "Authorization: Bearer <your_access_token>"
+```
+Response: `{id, email, username, created_at}`
+
+---
+
+#### 2. Health Check
 ```bash
 curl http://localhost:8000/health
 ```
 
-#### 2. Create a Lesson
+#### 3. Create a Lesson
 ```bash
 curl -X POST http://localhost:8000/lessons \
   -H "Content-Type: application/json" \
@@ -244,7 +279,7 @@ curl -X POST http://localhost:8000/lessons \
   }'
 ```
 
-#### 3. List All Lessons
+#### 4. List All Lessons
 ```bash
 curl http://localhost:8000/lessons
 ```
@@ -277,44 +312,35 @@ curl -X DELETE http://localhost:8000/lessons/{lesson_id}
 
 ### Run All Tests
 ```bash
-# Using uv:
-uv run pytest
+# Using pytest:
+python -m pytest
 
-# Or with activated venv:
+# Or from activated venv:
 pytest
 ```
 
-### Run Tests with Coverage Report
+### Run Tests with Quiet Output
 ```bash
-uv run pytest --cov=math_app --cov-report=html
+pytest -q
 ```
 
 ### Run Specific Test File
 ```bash
-uv run pytest math_app/tests/test_lessons.py -v
+pytest math_app/tests/test_lessons.py -v
 ```
 
-### Run Specific Test Class
-```bash
-uv run pytest math_app/tests/test_lessons.py::TestCreateLesson -v
+### Test Database
+- Tests use file-based SQLite (fast, isolated)
+- Table created automatically for each test
+- No need to mock database - uses real ORM
+
+### Current Test Status
+```
+10 passed, 13 failures (Pydantic enum deserialization - pending fix)
 ```
 
-### Run Specific Test Function
-```bash
-uv run pytest math_app/tests/test_lessons.py::TestCreateLesson::test_create_lesson_minimal -v
-```
-
-### Test Results
-Expected output:
-```
-collected 25 items
-
-math_app/tests/test_lessons.py::TestHealth::test_health_check_returns_healthy PASSED
-math_app/tests/test_lessons.py::TestCreateLesson::test_create_lesson_minimal PASSED
-math_app/tests/test_lessons.py::TestCreateLesson::test_create_lesson_with_problems PASSED
-...
-========================= 25 passed in 1.23s =========================
-```
+**Health & Root Tests**: ✅ Passing  
+**CRUD Operations**: 🔄 In Progress (database working, enum validation pending)
 
 ---
 
@@ -360,6 +386,38 @@ The file contains pre-configured requests for all CRUD operations. Hit the arrow
 ---
 
 ## API Endpoints Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/signup` | Register new user |
+| POST | `/auth/signin` | Login user |
+| GET | `/auth/me` | Get current authenticated user |
+| GET | `/health` | Health check |
+| GET | `/` | Welcome endpoint |
+| GET | `/lessons` | List all lessons (with optional topic/level filters) |
+| POST | `/lessons` | Create new lesson |
+| GET | `/lessons/{lesson_id}` | Get specific lesson |
+| PUT | `/lessons/{lesson_id}` | Update lesson |
+| DELETE | `/lessons/{lesson_id}` | Delete lesson |
+
+---
+
+## Authentication
+
+All authentication uses **JWT (JSON Web Tokens)**:
+
+- Tokens are generated on signup and signin
+- Include token in `Authorization: Bearer <token>` header for authenticated endpoints
+- Tokens expire after 24 hours (configurable via `JWT_EXPIRATION_HOURS` in `.env`)
+- Password hashing uses bcrypt
+
+**Protected Endpoints** (coming soon):
+- Progress tracking endpoints will require authentication
+- User profile update endpoints will require authentication
+
+---
+
+## API Endpoints Reference (Full)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
