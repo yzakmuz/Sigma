@@ -1,21 +1,31 @@
 """Pytest configuration and fixtures for the Math Teaching API."""
 
+import os
+import tempfile
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 from math_app.app.main import app
-from math_app.core.database import get_session
+from math_app.core.database import get_session, get_current_user
 from math_app.core.models_orm import Base
 
 
-# Create an in-memory SQLite database for testing
+# Create a test database
 @pytest.fixture(scope="function")
 def test_db():
-    """Create a test database using SQLite in-memory."""
-    # Use SQLite in-memory database for fast testing
-    engine = create_engine("sqlite:///:memory:")
+    """Create a test database using SQLite."""
+    # Create a temporary file for the database
+    db_fd, db_path = tempfile.mkstemp()
+    
+    # Create engine with file-based database
+    engine = create_engine(
+        f"sqlite:///{db_path}",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     
     # Create all tables
     Base.metadata.create_all(bind=engine)
@@ -23,16 +33,19 @@ def test_db():
     # Create session factory
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     
-    yield TestingSessionLocal, engine
+    yield TestingSessionLocal, engine, db_path
     
     # Cleanup
     Base.metadata.drop_all(bind=engine)
+    engine.dispose()
+    os.close(db_fd)
+    os.unlink(db_path)
 
 
 @pytest.fixture
 def db_session(test_db):
     """Provide a database session for testing."""
-    TestingSessionLocal, engine = test_db
+    TestingSessionLocal, engine, db_path = test_db
     session = TestingSessionLocal()
     yield session
     session.close()
@@ -43,7 +56,7 @@ def client(db_session):
     """Provide a TestClient with database session dependency injection."""
     
     def override_get_session():
-        yield db_session
+        return db_session
     
     app.dependency_overrides[get_session] = override_get_session
     yield TestClient(app)
