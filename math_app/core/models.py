@@ -1,5 +1,5 @@
 """Data models for the Math Teaching API."""
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, Field
@@ -44,7 +44,7 @@ class Lesson(BaseModel):
     topic: TopicEnum = Field(..., description="Math topic covered")
     level: LevelEnum = Field(..., description="Overall difficulty level")
     problems: list[Problem] = Field(default_factory=list, description="Problems in this lesson")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
 
 
 class LessonCreate(BaseModel):

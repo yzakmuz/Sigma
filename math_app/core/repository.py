@@ -2,7 +2,7 @@
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .models import Lesson, LessonCreate, LessonUpdate, Problem, ProblemCreate
@@ -76,7 +76,7 @@ class LessonRepository:
             topic=lesson_create.topic,
             level=lesson_create.level,
             problems=problems,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         self._lessons[lesson_id] = lesson

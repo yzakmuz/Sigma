@@ -11,6 +11,7 @@ from math_app.core.repository import get_repository, LessonRepository
 def test_repository():
     """Provide a fresh, empty test repository for each test."""
     repo = LessonRepository()
+    repo.clear()
     yield repo
     repo.clear()
 
