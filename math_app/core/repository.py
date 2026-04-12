@@ -1,4 +1,12 @@
-"""In-memory repository for lessons."""
+"""
+DEPRECATED: In-memory repository for lessons.
+
+This module is deprecated as of Phase 4 (ORM Integration).
+The application now uses SQLAlchemy ORM with MySQL for all data operations.
+
+Please use math_app.core.database and math_app.core.models_orm instead.
+This file is kept for reference and backward compatibility only.
+"""
 
 import json
 import uuid
