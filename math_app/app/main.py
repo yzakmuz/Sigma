@@ -20,12 +20,16 @@ from math_app.core.models import (
 from math_app.core.database import get_session
 from math_app.core.models_orm import LessonORM
 from math_app.core.exceptions import MathAPIException, LessonNotFound
+from math_app.app import auth
 
 app = FastAPI(
     title="Math Teaching API",
     description="A simplified backend for teaching math progressively",
     version="0.1.0",
 )
+
+# Include auth router
+app.include_router(auth.router)
 
 
 @app.exception_handler(MathAPIException)
