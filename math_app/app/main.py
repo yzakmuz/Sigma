@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
@@ -26,6 +27,15 @@ app = FastAPI(
     title="Math Teaching API",
     description="A simplified backend for teaching math progressively",
     version="0.1.0",
+)
+
+# Enable CORS for frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 # Include auth router
