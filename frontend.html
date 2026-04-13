@@ -824,7 +824,7 @@
                                 <div class="input-group">
                                     <input type="text" class="problem-answer" id="answer-input-${problem.id}" 
                                            placeholder="Enter your answer...">
-                                    <button class="btn-submit" onclick="submitAnswer('${problem.id}', '${lesson.id}')">
+                                    <button class="btn-submit" id="submit-btn-${problem.id}" onclick="submitAnswer('${problem.id}', '${lesson.id}', this)">
                                         Submit
                                     </button>
                                     <button class="btn-giveup" onclick="revealAnswer('${problem.id}')">
@@ -899,7 +899,7 @@
         }
 
         // Submit problem answer
-        async function submitAnswer(problemId, lessonId) {
+        async function submitAnswer(problemId, lessonId, buttonElement) {
             if (!token) {
                 alert('Please login to submit answers');
                 return;
@@ -913,7 +913,7 @@
                 return;
             }
 
-            const submitBtn = event.target;
+            const submitBtn = buttonElement;
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
