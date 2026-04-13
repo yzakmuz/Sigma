@@ -483,6 +483,55 @@ async def get_user_dashboard(
     }
 
 
+@app.get("/problems/{problem_id}/hint", response_model=dict, tags=["problems"])
+async def get_progressive_hint(
+    problem_id: str,
+    attempt_number: int = Query(1, description="User's current attempt number"),
+    session: Session = Depends(get_session),
+    current_user = Depends(auth.get_current_user),
+):
+    """
+    Get a progressive hint for a problem based on attempt count.
+    
+    Strategy:
+    - Attempt 1: No hint (user should try first)
+    - Attempt 2-3: Show hint if available
+    - Attempt 4+: Show explanation if available
+    
+    Query Parameters:
+    - attempt_number: Current attempt count (default: 1)
+    """
+    # Find the problem
+    all_lessons = session.query(LessonORM).all()
+    problem_data = None
+    
+    for lesson_orm in all_lessons:
+        problems_data = json.loads(lesson_orm.problems_json)
+        for problem in problems_data:
+            if problem["id"] == problem_id:
+                problem_data = problem
+                break
+        if problem_data:
+            break
+    
+    if not problem_data:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    
+    response = {}
+    
+    if attempt_number >= 4 and problem_data.get("explanation"):
+        response["hint_type"] = "explanation"
+        response["hint"] = problem_data["explanation"]
+    elif attempt_number >= 2 and problem_data.get("hint"):
+        response["hint_type"] = "hint"
+        response["hint"] = problem_data["hint"]
+    else:
+        response["hint_type"] = "none"
+        response["hint"] = "Try again! You can do it."
+    
+    return response
+
+
 @app.post("/users/{user_id}/difficulty-recommendation", response_model=dict, tags=["users"])
 async def get_difficulty_recommendation(
     user_id: str,
