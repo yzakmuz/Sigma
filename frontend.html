@@ -335,6 +335,177 @@
             font-size: 12px;
             opacity: 0.9;
         }
+
+        .problem-interactive {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+        }
+
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .attempt-counter {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .problem-question {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+        }
+
+        .problem-question strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .problem-question p {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .problem-input-section {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"].problem-answer {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-submit {
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-submit:hover {
+            background: #45a049;
+        }
+
+        .btn-submit:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-giveup {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-giveup:hover {
+            background: #e68900;
+        }
+
+        .feedback {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .answer-revealed {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .answer-revealed.show {
+            display: block;
+        }
+
+        .answer-revealed strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .hint-section {
+            background: #e8f4f8;
+            border-left: 4px solid #03a9f4;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .hint-section.show {
+            display: block;
+        }
+
+        .explanation-section {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-section strong {
+            display: block;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -532,6 +703,16 @@
                     currentUser = email.split('@')[0];
                     localStorage.setItem('token', token);
                     localStorage.setItem('currentUser', currentUser);
+                    
+                    // Fetch and store current user ID
+                    const userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        localStorage.setItem('userId', userData.id);
+                    }
+                    
                     showMessage(messageDiv, 'success', 'Logged in successfully!');
                     updateAuthUI();
                     loadLessons();
@@ -550,6 +731,7 @@
             currentUser = null;
             localStorage.removeItem('token');
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('userId');
             updateAuthUI();
             closeLessonDetail();
             loadLessons();
@@ -610,11 +792,46 @@
                 <div class="problems-list">
                     <h3>📝 Problems (${lesson.problems.length})</h3>
                     ${lesson.problems.map((problem, idx) => `
-                        <div class="problem-item">
-                            <div class="problem-label">#${idx + 1} - ${problem.difficulty.toUpperCase()}</div>
-                            <p><strong>Question:</strong> ${problem.question}</p>
-                            <p><strong>Answer:</strong> ${problem.answer}</p>
-                            ${problem.hint ? `<p><strong>Hint:</strong> ${problem.hint}</p>` : ''}
+                        <div id="problem-${problem.id}" class="problem-interactive">
+                            <div class="problem-header">
+                                <div class="problem-label">#${idx + 1} - ${problem.difficulty.toUpperCase()}</div>
+                                <div class="attempt-counter" id="attempts-${problem.id}">Attempt: 1</div>
+                            </div>
+                            
+                            <div class="problem-question">
+                                <strong>Question:</strong>
+                                <p>${problem.question}</p>
+                            </div>
+                            
+                            <div class="feedback" id="feedback-${problem.id}"></div>
+                            
+                            <div class="hint-section" id="hint-${problem.id}">
+                                <strong>💡 Hint:</strong>
+                                ${problem.hint}
+                            </div>
+                            
+                            <div class="explanation-section" id="explanation-${problem.id}">
+                                <strong>📖 Explanation:</strong>
+                                <div id="explanation-text-${problem.id}"></div>
+                            </div>
+                            
+                            <div class="answer-revealed" id="answer-${problem.id}">
+                                <strong>✓ Correct Answer:</strong>
+                                <div>${problem.answer}</div>
+                            </div>
+                            
+                            <div class="problem-input-section" id="input-section-${problem.id}">
+                                <div class="input-group">
+                                    <input type="text" class="problem-answer" id="answer-input-${problem.id}" 
+                                           placeholder="Enter your answer...">
+                                    <button class="btn-submit" onclick="submitAnswer('${problem.id}', '${lesson.id}')">
+                                        Submit
+                                    </button>
+                                    <button class="btn-giveup" onclick="revealAnswer('${problem.id}')">
+                                        Give Up?
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
@@ -623,6 +840,11 @@
             document.getElementById('lessonDetailContent').innerHTML = content;
             document.getElementById('lessonsContainer').classList.add('hidden');
             document.getElementById('lessonDetailContainer').classList.remove('hidden');
+            
+            // Load attempts history for all problems if logged in
+            if (token) {
+                lesson.problems.forEach(problem => loadAttemptHistory(problem.id));
+            }
         }
 
         // Close lesson detail
@@ -674,6 +896,119 @@
         function showMessage(element, type, text) {
             element.className = `message ${type}`;
             element.textContent = text;
+        }
+
+        // Submit problem answer
+        async function submitAnswer(problemId, lessonId) {
+            if (!token) {
+                alert('Please login to submit answers');
+                return;
+            }
+
+            const answerInput = document.getElementById(`answer-input-${problemId}`);
+            const submittedAnswer = answerInput.value.trim();
+
+            if (!submittedAnswer) {
+                alert('Please enter an answer');
+                return;
+            }
+
+            const submitBtn = event.target;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/problems/${problemId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ problem_id: problemId, submitted_answer: submittedAnswer })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const feedbackDiv = document.getElementById(`feedback-${problemId}`);
+                    feedbackDiv.classList.add('show');
+                    feedbackDiv.textContent = `✓ ${data.feedback}`;
+                    
+                    if (data.is_correct) {
+                        feedbackDiv.classList.add('correct');
+                        feedbackDiv.classList.remove('incorrect');
+                        // Show explanation if correct
+                        if (data.explanation) {
+                            const explanationDiv = document.getElementById(`explanation-${problemId}`);
+                            explanationDiv.classList.add('show');
+                            document.getElementById(`explanation-text-${problemId}`).textContent = data.explanation;
+                        }
+                    } else {
+                        feedbackDiv.classList.add('incorrect');
+                        feedbackDiv.classList.remove('correct');
+                    }
+
+                    // Update attempt counter
+                    document.getElementById(`attempts-${problemId}`).textContent = 
+                        `Attempt: ${data.attempt_number}`;
+                    
+                    // Clear input
+                    answerInput.value = '';
+                } else {
+                    alert('Error: ' + (data.detail || 'Failed to submit answer'));
+                }
+            } catch (error) {
+                alert('Connection error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+        }
+
+        // Reveal answer when user gives up
+        async function revealAnswer(problemId) {
+            if (!token) {
+                alert('Please login to reveal answers');
+                return;
+            }
+
+            const answerDiv = document.getElementById(`answer-${problemId}`);
+            const inputSection = document.getElementById(`input-section-${problemId}`);
+            const answerInput = document.getElementById(`answer-input-${problemId}`);
+            
+            answerDiv.classList.add('show');
+            inputSection.innerHTML = '<p style="color: #999; font-style: italic;">You gave up on this problem. Try the next one!</p>';
+            
+            // Hide hint when answer is revealed
+            document.getElementById(`hint-${problemId}`).classList.remove('show');
+        }
+
+        // Load attempt history for a problem
+        async function loadAttemptHistory(problemId) {
+            if (!token) return;
+
+            try {
+                const userId = localStorage.getItem('userId');
+                if (!userId) return;
+
+                const response = await fetch(
+                    `${API_BASE_URL}/users/${userId}/attempts?problem_id=${problemId}&limit=1`,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
+
+                if (response.ok) {
+                    const attempts = await response.json();
+                    if (attempts.length > 0) {
+                        const lastAttempt = attempts[0];
+                        document.getElementById(`attempts-${problemId}`).textContent = 
+                            `Attempt: ${lastAttempt.attempt_number}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading attempt history:', error);
+            }
         }
 
         // Start
