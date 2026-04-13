@@ -17,9 +17,12 @@ from math_app.core.models import (
     TopicEnum,
     LevelEnum,
     Problem,
+    AttemptCreate,
+    AttemptResponse,
+    validate_math_answer,
 )
 from math_app.core.database import get_session
-from math_app.core.models_orm import LessonORM
+from math_app.core.models_orm import LessonORM, UserAttemptORM, UserORM
 from math_app.core.exceptions import MathAPIException, LessonNotFound
 from math_app.app import auth
 
@@ -275,6 +278,122 @@ async def delete_lesson(
     
     session.delete(lesson_orm)
     session.commit()
+
+
+@app.post("/problems/{problem_id}/submit", response_model=dict, status_code=200, tags=["problems"])
+async def submit_problem_answer(
+    problem_id: str,
+    attempt: AttemptCreate,
+    session: Session = Depends(get_session),
+    current_user = Depends(auth.get_current_user),
+):
+    """
+    Submit an answer to a problem.
+    
+    Returns:
+    - is_correct: Whether the submitted answer is correct
+    - attempt_number: Current attempt number for this problem by this user
+    - feedback: Feedback message about correctness
+    """
+    if attempt.problem_id != problem_id:
+        raise HTTPException(status_code=400, detail="Problem ID mismatch")
+    
+    # Find the correct answer for this problem by searching all lessons
+    all_lessons = session.query(LessonORM).all()
+    correct_answer = None
+    explanation = None
+    
+    for lesson_orm in all_lessons:
+        problems_data = json.loads(lesson_orm.problems_json)
+        for problem_data in problems_data:
+            if problem_data["id"] == problem_id:
+                correct_answer = problem_data["answer"]
+                explanation = problem_data.get("explanation")
+                break
+        if correct_answer:
+            break
+    
+    if not correct_answer:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    
+    # Validate the answer
+    is_correct = validate_math_answer(attempt.submitted_answer, correct_answer)
+    
+    # Get current attempt number
+    attempt_count = session.query(UserAttemptORM).filter(
+        UserAttemptORM.user_id == current_user.id,
+        UserAttemptORM.problem_id == problem_id,
+    ).count()
+    attempt_number = attempt_count + 1
+    
+    # Save the attempt
+    attempt_orm = UserAttemptORM(
+        id=str(uuid4()),
+        user_id=current_user.id,
+        problem_id=problem_id,
+        submitted_answer=attempt.submitted_answer,
+        is_correct=1 if is_correct else 0,
+        attempt_number=attempt_number,
+        created_at=datetime.now(timezone.utc),
+    )
+    session.add(attempt_orm)
+    session.commit()
+    
+    # Prepare response
+    feedback = "Correct!" if is_correct else "Incorrect. Try again."
+    response = {
+        "is_correct": is_correct,
+        "attempt_number": attempt_number,
+        "feedback": feedback,
+    }
+    
+    if explanation:
+        response["explanation"] = explanation
+    
+    return response
+
+
+@app.get("/users/{user_id}/attempts", response_model=list[AttemptResponse], tags=["attempts"])
+async def get_user_attempts(
+    user_id: str,
+    problem_id: str | None = Query(None, description="Filter by problem ID"),
+    limit: int = Query(100, description="Maximum number of attempts to return"),
+    session: Session = Depends(get_session),
+    current_user = Depends(auth.get_current_user),
+):
+    """
+    Get attempts for a user.
+    
+    Requires authentication. Users can only view their own attempts.
+    
+    Query Parameters:
+    - problem_id: Filter attempts to a specific problem (optional)
+    - limit: Maximum number of attempts to return (default: 100)
+    """
+    # Users can only view their own attempts
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only view your own attempts")
+    
+    query = session.query(UserAttemptORM).filter(UserAttemptORM.user_id == user_id)
+    
+    if problem_id:
+        query = query.filter(UserAttemptORM.problem_id == problem_id)
+    
+    attempts = query.order_by(UserAttemptORM.created_at.desc()).limit(limit).all()
+    
+    return [
+        AttemptResponse(
+            id=attempt.id,
+            user_id=attempt.user_id,
+            problem_id=attempt.problem_id,
+            submitted_answer=attempt.submitted_answer,
+            is_correct=bool(attempt.is_correct),
+            attempt_number=attempt.attempt_number,
+            time_spent_seconds=attempt.time_spent_seconds,
+            created_at=attempt.created_at,
+        )
+        for attempt in attempts
+    ]
 
 
 if __name__ == "__main__":

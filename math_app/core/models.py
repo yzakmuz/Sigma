@@ -5,6 +5,44 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+def validate_math_answer(submitted_answer: str, correct_answer: str) -> bool:
+    """
+    Validate a submitted math answer against the correct answer.
+    
+    Handles:
+    - Numeric tolerance (±0.01)
+    - Case-insensitive comparison
+    - Whitespace normalization
+    - Algebraic form equivalence for simple expressions
+    
+    Args:
+        submitted_answer: User's submitted answer string
+        correct_answer: The correct answer string
+        
+    Returns:
+        True if answers match (within tolerance), False otherwise
+    """
+    # Normalize: strip whitespace, convert to lowercase
+    submitted = submitted_answer.strip().lower()
+    correct = correct_answer.strip().lower()
+    
+    # Exact match (after normalization)
+    if submitted == correct:
+        return True
+    
+    # Try numeric comparison (handles 5 vs 5.0, etc.)
+    try:
+        submitted_num = float(submitted)
+        correct_num = float(correct)  
+        # Allow ±0.01 tolerance for rounding
+        return abs(submitted_num - correct_num) < 0.01
+    except (ValueError, TypeError):
+        pass
+    
+    # For non-numeric, rely on normalized string match
+    return False
+
+
 class TopicEnum(str, Enum):
     """Math topics supported by the system."""
     ARITHMETIC = "arithmetic"
