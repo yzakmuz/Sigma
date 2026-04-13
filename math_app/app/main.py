@@ -24,6 +24,11 @@ from math_app.core.models import (
 from math_app.core.database import get_session
 from math_app.core.models_orm import LessonORM, UserAttemptORM, UserORM
 from math_app.core.exceptions import MathAPIException, LessonNotFound
+from math_app.core.learning_algorithms import (
+    get_next_problems_by_spaced_repetition,
+    recommend_difficulty_level,
+    get_user_attempt_stats,
+)
 from math_app.app import auth
 
 app = FastAPI(
@@ -394,6 +399,144 @@ async def get_user_attempts(
         )
         for attempt in attempts
     ]
+
+
+@app.get("/lessons/{lesson_id}/recommended-problems", response_model=list[Problem], tags=["lessons"])
+async def get_recommended_problems(
+    lesson_id: str,
+    strategy: str = Query("spaced_repetition", description="Strategy: spaced_repetition or newest"),
+    session: Session = Depends(get_session),
+    current_user = Depends(auth.get_current_user),
+):
+    """
+    Get problems recommended for a user based on their performance.
+    
+    Query Parameters:
+    - strategy: 'spaced_repetition' (default) or 'newest'
+    
+    Spaced repetition strategy:
+    - Prioritizes problems with recent wrong attempts
+    - Shows problems due for review (3+ days after last correct attempt)
+    - Retires problems solved correctly 3+ times
+    - Shows new problems last
+    """
+    lesson_orm = session.query(LessonORM).filter(LessonORM.id == lesson_id).first()
+    if not lesson_orm:
+        raise LessonNotFound(lesson_id)
+    
+    if strategy == "spaced_repetition":
+        problems_data = get_next_problems_by_spaced_repetition(
+            session, current_user.id, lesson_id
+        )
+    else:
+        # Default to newest (all problems)
+        problems_data = json.loads(lesson_orm.problems_json)
+    
+    # Convert to Problem response models
+    return [Problem(**p) for p in problems_data]
+
+
+@app.get("/users/{user_id}/dashboard", response_model=dict, tags=["users"])
+async def get_user_dashboard(
+    user_id: str,
+    session: Session = Depends(get_session),
+    current_user = Depends(auth.get_current_user),
+):
+    """
+    Get user's learning dashboard with statistics and progress.
+    
+    Returns:
+    - total_problems_solved: Number of unique problems attempted
+    - total_attempts: Total submission count
+    - accuracy: Percentage of correct submissions
+    - streak: Current correct answer streak
+    - next_review_due: Estimated date of next problem due for review
+    """
+    # Users can only view their own dashboard
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only view your own dashboard")
+    
+    stats = get_user_attempt_stats(session, user_id)
+    
+    # Find next problem due for review
+    all_attempts = session.query(UserAttemptORM).filter(
+        UserAttemptORM.user_id == user_id
+    ).all()
+    
+    next_review_due = None
+    if all_attempts:
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        
+        # Find oldest correct attempt that's less than 3 days old
+        for attempt in sorted(all_attempts, key=lambda a: a.created_at):
+            if attempt.is_correct == 1:
+                days_since = (now - attempt.created_at).days
+                if days_since < 3:
+                    days_until_due = 3 - days_since
+                    next_review_due = (now + timedelta(days=days_until_due)).isoformat()
+                    break
+    
+    return {
+        **stats,
+        "next_review_due": next_review_due,
+    }
+
+
+@app.post("/users/{user_id}/difficulty-recommendation", response_model=dict, tags=["users"])
+async def get_difficulty_recommendation(
+    user_id: str,
+    topic: TopicEnum,
+    session: Session = Depends(get_session),
+    current_user = Depends(auth.get_current_user),
+):
+    """
+    Get difficulty level recommendation for a user on a specific topic.
+    
+    Returns:
+    - recommended_level: 'beginner', 'intermediate', or 'advanced'
+    - reason: Explanation based on recent performance
+    - accuracy: Current accuracy on this topic (last 10 attempts)
+    """
+    # Users can only get their own recommendations
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only view your own recommendations")
+    
+    recommended_level = recommend_difficulty_level(session, user_id, topic.value)
+    
+    # Calculate accuracy on this topic for context
+    all_lessons = session.query(LessonORM).filter(LessonORM.topic == topic).all()
+    problem_ids_for_topic = set()
+    for lesson in all_lessons:
+        problems_data = json.loads(lesson.problems_json)
+        for problem in problems_data:
+            problem_ids_for_topic.add(problem["id"])
+    
+    attempts = session.query(UserAttemptORM).filter(
+        UserAttemptORM.user_id == user_id,
+        UserAttemptORM.problem_id.in_(list(problem_ids_for_topic)) if problem_ids_for_topic else False
+    ).order_by(UserAttemptORM.created_at.desc()).limit(10).all()
+    
+    if attempts:
+        correct_count = sum(1 for a in attempts if a.is_correct == 1)
+        accuracy = (correct_count / len(attempts) * 100)
+    else:
+        accuracy = 0
+    
+    # Generate reason
+    if accuracy > 80:
+        reason = "Great job! You're ready for more challenging problems."
+    elif accuracy < 50:
+        reason = "Keep practicing! This level will help build your foundation."
+    else:
+        reason = "You're doing well. Continue at this level or challenge yourself."
+    
+    return {
+        "recommended_level": recommended_level,
+        "reason": reason,
+        "accuracy": round(accuracy, 1),
+        "topic": topic.value,
+    }
 
 
 if __name__ == "__main__":
