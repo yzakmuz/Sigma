@@ -601,8 +601,8 @@
     </div>
 
     <script>
-        // Use relative URLs so that fetch automatically uses the current host
-        const API_BASE_URL = '';
+        // Use relative URLs when served over HTTP, but fallback to localhost when opened locally directly as a file
+        const API_BASE_URL = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
         
         let token = localStorage.getItem('token');
         let currentUser = localStorage.getItem('currentUser');

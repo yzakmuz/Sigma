@@ -615,6 +615,10 @@ if __name__ == "__main__":
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+import os
+
 @app.get("/")
 def serve_frontend():
-    return FileResponse("/app/frontend.html")
+    # Use path relative to the root of the repo rather than the hardcoded '/app'
+    file_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend.html")
+    return FileResponse(file_path)
