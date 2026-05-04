@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from math_app.core.database import get_session
 from math_app.core.models_orm import UserORM
@@ -37,12 +38,14 @@ async def signup(request: UserRegisterRequest, session: Session = Depends(get_se
     Returns JWT token for immediate login.
     """
     # Check if email already exists
-    existing_email = session.query(UserORM).filter(UserORM.email == request.email).first()
+    email_lower = request.email.lower()
+    existing_email = session.query(UserORM).filter(func.lower(UserORM.email) == email_lower).first()
     if existing_email:
         raise HTTPException(status_code=409, detail="Email already registered")
     
     # Check if username already exists
-    existing_username = session.query(UserORM).filter(UserORM.username == request.username).first()
+    username_lower = request.username.lower()
+    existing_username = session.query(UserORM).filter(func.lower(UserORM.username) == username_lower).first()
     if existing_username:
         raise HTTPException(status_code=409, detail="Username already taken")
     
@@ -50,8 +53,8 @@ async def signup(request: UserRegisterRequest, session: Session = Depends(get_se
     user_id = str(uuid4())
     new_user = UserORM(
         id=user_id,
-        email=request.email,
-        username=request.username,
+        email=email_lower,
+        username=username_lower,
         hashed_password=hash_password(request.password),
         created_at=datetime.now(timezone.utc),
     )
@@ -78,9 +81,10 @@ async def signin(request: UserLoginRequest, session: Session = Depends(get_sessi
     
     Returns JWT token for authenticated requests.
     """
-    # Find user by username or email
+    # Find user by username or email (case-insensitive)
+    username_lower = request.username.lower()
     user = session.query(UserORM).filter(
-        (UserORM.username == request.username) | (UserORM.email == request.username)
+        (func.lower(UserORM.username) == username_lower) | (func.lower(UserORM.email) == username_lower)
     ).first()
     
     if not user:

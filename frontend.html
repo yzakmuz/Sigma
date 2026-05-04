@@ -601,7 +601,9 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8000';
+        // Use relative URLs so that fetch automatically uses the current host
+        const API_BASE_URL = '';
+        
         let token = localStorage.getItem('token');
         let currentUser = localStorage.getItem('currentUser');
         let loginTime = localStorage.getItem('loginTime');

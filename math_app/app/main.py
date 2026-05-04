@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Depends, Header
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from starlette.requests import Request
@@ -81,7 +81,7 @@ async def math_api_exception_handler(request: Request, exc: MathAPIException):
     )
 
 
-@app.get("/", tags=["root"])
+@app.get("/api/help", tags=["root"])
 async def root():
     """Welcome endpoint with available endpoints."""
     return {
@@ -614,3 +614,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("/app/frontend.html")

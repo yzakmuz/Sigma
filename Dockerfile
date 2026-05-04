@@ -11,11 +11,11 @@ RUN apt-get update && apt-get install -y \
 # Copy dependency files
 COPY pyproject.toml .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -e .
-
 # Copy application code
 COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -e .
 
 # Expose the port FastAPI will run on
 EXPOSE 8000
