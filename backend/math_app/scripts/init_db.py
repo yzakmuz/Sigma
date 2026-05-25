@@ -34,7 +34,7 @@ def init_database():
             return
 
         # Load sample data from JSON
-        sample_db_path = Path(__file__).parent.parent.parent / "sample_db.json"
+        sample_db_path = Path(__file__).parent.parent.parent.parent / "db" / "sample_db.json"
         if not sample_db_path.exists():
             print(f"⚠️  Sample database not found at {sample_db_path}")
             return

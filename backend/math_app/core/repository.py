@@ -26,7 +26,7 @@ class LessonRepository:
 
     def _load_sample_data(self) -> None:
         """Load sample lessons from sample_db.json if it exists."""
-        db_path = Path(__file__).parent.parent.parent / "sample_db.json"
+        db_path = Path(__file__).parent.parent.parent.parent / "db" / "sample_db.json"
         if db_path.exists():
             try:
                 with open(db_path, "r", encoding="utf-8") as f:

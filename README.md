@@ -35,43 +35,27 @@ A simplified FastAPI backend for teaching mathematics progressively, from basic 
 
 ```
 ex1_math/
-├── math_app/
-│   ├── __init__.py
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── models.py              # Pydantic schemas (Lesson, Problem, etc.)
-│   │   ├── models_orm.py          # SQLAlchemy ORM models (LessonORM, UserORM, etc.)
-│   │   ├── database.py            # Database configuration and session management
-│   │   ├── repository.py          # Legacy in-memory storage (deprecated)
-│   │   └── exceptions.py          # Custom exception classes
-│   ├── app/
-│   │   ├── __init__.py
-│   │   └── main.py                # FastAPI app and endpoints
-│   ├── scripts/
-│   │   ├── __init__.py
-│   │   └── init_db.py             # Database initialization and seeding script
-│   └── tests/
-│       ├── __init__.py
-│       ├── conftest.py            # pytest fixtures and setup
-│       └── test_lessons.py        # Test cases (CRUD, validation, errors)
-├── alembic/
-│   ├── __init__.py
-│   ├── env.py                     # Alembic migration environment
-│   ├── script.py.mako             # Migration template
-│   └── versions/
-│       ├── __init__.py
-│       └── 001_initial_schema.py  # Initial schema creation
-├── docs/
-│   └── lessons.http               # REST Client requests
-├── sample_db.json                 # Sample data (auto-seeded on startup)
-├── .env                           # Environment variables (DATABASE_URL, etc.)
-├── alembic.ini                    # Alembic configuration
-├── pyproject.toml                 # Project metadata and dependencies
-├── Dockerfile                     # Docker container definition
-├── docker-compose.yml             # Docker Compose orchestration
-├── .dockerignore                  # Files to exclude from Docker build
-├── README.md                      # This file
-└── .gitignore                     # Git ignore rules
+├── backend/                  # FastAPI Backend Service
+│   ├── math_app/
+│   │   ├── core/             # Business logic and data models
+│   │   ├── app/              # FastAPI app and endpoints
+│   │   ├── scripts/          # Initialization scripts
+│   │   └── tests/            # Service tests
+│   ├── alembic/              # Database migrations
+│   ├── alembic.ini           # Alembic config
+│   ├── Dockerfile            # Container definition
+│   ├── pyproject.toml        # Dependencies
+│   └── uv.lock               # Dependency lockfile
+├── frontend/                 # Frontend Assets
+│   └── frontend.html         # Single-page UI
+├── db/                       # Database Assets
+│   └── sample_db.json        # Seed data
+├── tools/                    # Utility scripts
+│   ├── patch.py
+│   └── replacements.txt
+├── docker-compose.yml        # Orchestration
+├── README.md                 # This file
+└── .gitignore                # Git ignore rules
 ```
 
 
@@ -101,7 +85,9 @@ python -m venv .venv
 source .venv/bin/activate
 
 # Install dependencies
+cd backend
 pip install -e .
+cd ..
 ```
 
 ### Step 3: Set Up Database
@@ -120,7 +106,7 @@ docker-compose up
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS math_app;"
 
 # 3. Initialize the database (creates tables and seeds sample data)
-python math_app/scripts/init_db.py
+python backend/math_app/scripts/init_db.py
 ```
 
 ### Step 4: Verify Installation
@@ -154,7 +140,7 @@ The API will be available at:
 
 **Database Initialization:**
 - Alembic migrations run automatically on container startup
-- Sample data from `sample_db.json` is seeded if the database is empty
+- Sample data from `db/sample_db.json` is seeded if the database is empty
 - Persistent volume `mysql_data` stores database files
 
 #### Stop Docker Compose
@@ -183,6 +169,7 @@ source .venv/bin/activate  # macOS/Linux
 .venv\Scripts\activate     # Windows
 
 # Run the FastAPI server
+cd backend
 uvicorn math_app.app.main:app --reload
 ```
 
@@ -346,15 +333,15 @@ pytest math_app/tests/test_lessons.py -v
 
 ## Bonus Features
 
-### 1. Sample Database (sample_db.json)
-The project includes a lightweight `sample_db.json` file that provides starter data:
+### 1. Sample Database (db/sample_db.json)
+The project includes a lightweight `db/sample_db.json` file that provides starter data:
 
 - Automatically loaded when the API starts
 - Contains 2 sample lessons for testing
 - Easy to modify with additional lessons
-- Located at the project root
+- Located in the `db/` directory
 
-To add more sample lessons, edit `sample_db.json`:
+To add more sample lessons, edit `db/sample_db.json`:
 ```json
 {
   "lessons": [

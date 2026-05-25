@@ -18,7 +18,7 @@ services:
       retries: 10
 
   api:
-    build: .
+    build: ./backend
     container_name: math_teaching_api
     ports:
       - "8000:8000"
@@ -27,7 +27,7 @@ services:
       - DATABASE_URL=mysql+pymysql://root:rootpassword@mysql:3306/math_app
       - DATABASE_ECHO=true
     volumes:
-      - .:/app
+      - ./backend:/app
     depends_on:
       mysql:
         condition: service_healthy

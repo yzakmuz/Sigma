@@ -620,5 +620,5 @@ import os
 @app.get("/")
 def serve_frontend():
     # Use path relative to the root of the repo rather than the hardcoded '/app'
-    file_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend.html")
+    file_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "frontend", "frontend.html")
     return FileResponse(file_path)
