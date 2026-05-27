@@ -21,7 +21,7 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
-db/sample_db.json
+
 
 # Local gitignore overrides
 .gitignore.local

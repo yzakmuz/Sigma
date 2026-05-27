@@ -1,0 +1,382 @@
+{
+  "lessons": [
+    {
+      "id": "lesson-001",
+      "title": "Basic Addition",
+      "description": "Learn simple addition with single-digit numbers",
+      "topic": "arithmetic",
+      "level": "beginner",
+      "problems": [
+        {
+          "id": "problem-001",
+          "question": "What is 2 + 3?",
+          "answer": "5",
+          "difficulty": "beginner",
+          "hint": "Count on your fingers",
+          "explanation": "When we add 2 and 3, we start with 2 and count 3 more: 2, 3, 4, 5. The answer is 5."
+        }, {
+          "id": "problem-002",
+          "question": "What is 5 + 4?",
+          "answer": "9",
+          "difficulty": "beginner",
+          "hint": "Start with 5 and count 4 more",
+          "explanation": "Starting at 5, count 4 more: 5, 6, 7, 8, 9. So 5 + 4 = 9."
+        }, {
+          "id": "problem-003",
+          "question": "What is 6 + 3?",
+          "answer": "9",
+          "difficulty": "beginner",
+          "hint": "Count 3 more after 6",
+          "explanation": "6 + 3 means starting at 6 and adding 3 more: 6, 7, 8, 9. The sum is 9."
+        }, {
+          "id": "problem-004",
+          "question": "What is 1 + 8?",
+          "answer": "9",
+          "difficulty": "beginner",
+          "hint": "Think of 8 + 1",
+          "explanation": "1 + 8 is the same as 8 + 1, which equals 9. This shows that addition is commutative (order doesn't matter)."
+        }
+      ],
+      "created_at": "2026-04-01T08:00:00Z"
+    },
+    {
+      "id": "lesson-002",
+      "title": "Subtraction Basics",
+      "description": "Introduction to subtraction with small numbers",
+      "topic": "arithmetic",
+      "level": "beginner",
+      "problems": [
+        {
+          "id": "problem-005",
+          "question": "What is 7 - 2?",
+          "answer": "5",
+          "difficulty": "beginner",
+          "hint": "Remove 2 from 7"
+        },
+        {
+          "id": "problem-006",
+          "question": "What is 10 - 3?",
+          "answer": "7",
+          "difficulty": "beginner",
+          "hint": null
+        },
+        {
+          "id": "problem-007",
+          "question": "What is 9 - 4?",
+          "answer": "5",
+          "difficulty": "beginner",
+          "hint": "Count down from 9"
+        },
+        {
+          "id": "problem-008",
+          "question": "What is 8 - 1?",
+          "answer": "7",
+          "difficulty": "beginner",
+          "hint": "One less than 8"
+        }
+      ],
+      "created_at": "2026-04-01T08:15:00Z"
+    },
+    {
+      "id": "lesson-003",
+      "title": "Multiplication Fundamentals",
+      "description": "Learn multiplication as repeated addition",
+      "topic": "arithmetic",
+      "level": "intermediate",
+      "problems": [
+        {
+          "id": "problem-009",
+          "question": "What is 3 × 4?",
+          "answer": "12",
+          "difficulty": "intermediate",
+          "hint": "Think of 4 groups of 3"
+        },
+        {
+          "id": "problem-010",
+          "question": "What is 5 × 6?",
+          "answer": "30",
+          "difficulty": "intermediate",
+          "hint": "5 + 5 + 5 + 5 + 5 + 5"
+        },
+        {
+          "id": "problem-011",
+          "question": "What is 7 × 8?",
+          "answer": "56",
+          "difficulty": "intermediate",
+          "hint": null
+        },
+        {
+          "id": "problem-012",
+          "question": "What is 9 × 9?",
+          "answer": "81",
+          "difficulty": "intermediate",
+          "hint": "A perfect square"
+        }
+      ],
+      "created_at": "2026-04-01T08:30:00Z"
+    },
+    {
+      "id": "lesson-004",
+      "title": "Division Basics",
+      "description": "Introduction to division as the inverse of multiplication",
+      "topic": "arithmetic",
+      "level": "intermediate",
+      "problems": [
+        {
+          "id": "problem-013",
+          "question": "What is 12 ÷ 3?",
+          "answer": "4",
+          "difficulty": "intermediate",
+          "hint": "3 × ? = 12"
+        },
+        {
+          "id": "problem-014",
+          "question": "What is 20 ÷ 5?",
+          "answer": "4",
+          "difficulty": "intermediate",
+          "hint": "5 × ? = 20"
+        },
+        {
+          "id": "problem-015",
+          "question": "What is 56 ÷ 7?",
+          "answer": "8",
+          "difficulty": "intermediate",
+          "hint": "7 × ? = 56"
+        },
+        {
+          "id": "problem-016",
+          "question": "What is 81 ÷ 9?",
+          "answer": "9",
+          "difficulty": "intermediate",
+          "hint": "9 squared"
+        }
+      ],
+      "created_at": "2026-04-01T08:45:00Z"
+    },
+    {
+      "id": "lesson-005",
+      "title": "Order of Operations",
+      "description": "Learn PEMDAS/BODMAS - Parentheses, Exponents, Multiplication, Division, Addition, Subtraction",
+      "topic": "arithmetic",
+      "level": "advanced",
+      "problems": [
+        {
+          "id": "problem-017",
+          "question": "What is 2 + 3 × 4?",
+          "answer": "14",
+          "difficulty": "advanced",
+          "hint": "Multiply before adding"
+        },
+        {
+          "id": "problem-018",
+          "question": "What is (2 + 3) × 4?",
+          "answer": "20",
+          "difficulty": "advanced",
+          "hint": "Solve parentheses first"
+        },
+        {
+          "id": "problem-019",
+          "question": "What is 10 - 2 × 3?",
+          "answer": "4",
+          "difficulty": "advanced",
+          "hint": "Multiplication comes before subtraction"
+        }
+      ],
+      "created_at": "2026-04-01T09:00:00Z"
+    },
+    {
+      "id": "lesson-006",
+      "title": "Linear Equations",
+      "description": "Solve equations of the form ax + b = c",
+      "topic": "algebra",
+      "level": "intermediate",
+      "problems": [
+        {
+          "id": "problem-020",
+          "question": "Solve: 2x + 3 = 7",
+          "answer": "2",
+          "difficulty": "intermediate",
+          "hint": "Subtract 3 from both sides, then divide by 2"
+        },
+        {
+          "id": "problem-021",
+          "question": "Solve: 3x - 5 = 10",
+          "answer": "5",
+          "difficulty": "intermediate",
+          "hint": "Add 5 to both sides first"
+        },
+        {
+          "id": "problem-022",
+          "question": "Solve: x + 7 = 12",
+          "answer": "5",
+          "difficulty": "intermediate",
+          "hint": "Subtract 7 from both sides"
+        },
+        {
+          "id": "problem-023",
+          "question": "Solve: 4x = 20",
+          "answer": "5",
+          "difficulty": "intermediate",
+          "hint": "Divide both sides by 4"
+        }
+      ],
+      "created_at": "2026-04-01T09:15:00Z"
+    },
+    {
+      "id": "lesson-007",
+      "title": "Quadratic Equations",
+      "description": "Solve equations of the form ax² + bx + c = 0",
+      "topic": "algebra",
+      "level": "advanced",
+      "problems": [
+        {
+          "id": "problem-024",
+          "question": "Solve: x² - 5x + 6 = 0",
+          "answer": "x = 2 or x = 3",
+          "difficulty": "advanced",
+          "hint": "Use the quadratic formula or factor the equation"
+        },
+        {
+          "id": "problem-025",
+          "question": "Solve: 2x² + 3x - 2 = 0",
+          "answer": "x = 0.5 or x = -2",
+          "difficulty": "advanced",
+          "hint": "Factor or use the quadratic formula"
+        },
+        {
+          "id": "problem-026",
+          "question": "Solve: x² = 16",
+          "answer": "x = 4 or x = -4",
+          "difficulty": "advanced",
+          "hint": "Take the square root of both sides"
+        }
+      ],
+      "created_at": "2026-04-01T09:30:00Z"
+    },
+    {
+      "id": "lesson-008",
+      "title": "Systems of Linear Equations",
+      "description": "Solve systems with two or more linear equations",
+      "topic": "algebra",
+      "level": "advanced",
+      "problems": [
+        {
+          "id": "problem-027",
+          "question": "Solve: x + y = 5 and 2x - y = 4",
+          "answer": "x = 3, y = 2",
+          "difficulty": "advanced",
+          "hint": "Use substitution or elimination method"
+        },
+        {
+          "id": "problem-028",
+          "question": "Solve: 3x + 2y = 12 and x - y = 1",
+          "answer": "x = 2, y = 1",
+          "difficulty": "advanced",
+          "hint": "Try the elimination method"
+        }
+      ],
+      "created_at": "2026-04-01T09:45:00Z"
+    },
+    {
+      "id": "lesson-009",
+      "title": "Basic Geometry",
+      "description": "Calculate area and perimeter of simple shapes",
+      "topic": "geometry",
+      "level": "beginner",
+      "problems": [
+        {
+          "id": "problem-029",
+          "question": "What is the area of a square with side 5?",
+          "answer": "25",
+          "difficulty": "beginner",
+          "hint": "Area = side × side"
+        },
+        {
+          "id": "problem-030",
+          "question": "What is the perimeter of a rectangle with length 4 and width 3?",
+          "answer": "14",
+          "difficulty": "beginner",
+          "hint": "Perimeter = 2(length + width)"
+        },
+        {
+          "id": "problem-031",
+          "question": "What is the area of a rectangle with length 6 and width 4?",
+          "answer": "24",
+          "difficulty": "beginner",
+          "hint": "Area = length × width"
+        },
+        {
+          "id": "problem-032",
+          "question": "What is the circumference of a circle with radius 5?",
+          "answer": "10π or approximately 31.4",
+          "difficulty": "beginner",
+          "hint": "Circumference = 2πr"
+        }
+      ],
+      "created_at": "2026-04-01T10:00:00Z"
+    },
+    {
+      "id": "lesson-010",
+      "title": "Triangle Properties",
+      "description": "Learn about triangle angles and sides",
+      "topic": "geometry",
+      "level": "intermediate",
+      "problems": [
+        {
+          "id": "problem-033",
+          "question": "What is the sum of angles in a triangle?",
+          "answer": "180 degrees",
+          "difficulty": "intermediate",
+          "hint": "The sum is always constant"
+        },
+        {
+          "id": "problem-034",
+          "question": "In a right triangle with legs 3 and 4, what is the hypotenuse?",
+          "answer": "5",
+          "difficulty": "intermediate",
+          "hint": "Use the Pythagorean theorem: a² + b² = c²"
+        },
+        {
+          "id": "problem-035",
+          "question": "What is the area of a triangle with base 10 and height 6?",
+          "answer": "30",
+          "difficulty": "intermediate",
+          "hint": "Area = (base × height) / 2"
+        }
+      ],
+      "created_at": "2026-04-01T10:15:00Z"
+    },
+    {
+      "id": "lesson-011",
+      "title": "Pythagorean Theorem",
+      "description": "Master the relationship between sides in right triangles",
+      "topic": "geometry",
+      "level": "advanced",
+      "problems": [
+        {
+          "id": "problem-036",
+          "question": "In a right triangle with legs 5 and 12, find the hypotenuse",
+          "answer": "13",
+          "difficulty": "advanced",
+          "hint": "5² + 12² = c²"
+        },
+        {
+          "id": "problem-037",
+          "question": "If a right triangle has hypotenuse 10 and one leg 6, find the other leg",
+          "answer": "8",
+          "difficulty": "advanced",
+          "hint": "6² + b² = 10²"
+        },
+        {
+          "id": "problem-038",
+          "question": "Find the hypotenuse of a right triangle with legs 8 and 15",
+          "answer": "17",
+          "difficulty": "advanced",
+          "hint": "8² + 15² = c²"
+        }
+      ],
+      "created_at": "2026-04-01T10:30:00Z"
+    }
+  ]
+}
+
