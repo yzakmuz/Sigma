@@ -23,7 +23,12 @@ export function Login() {
       localStorage.setItem("auth_token", response.data.access_token);
       navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "An error occurred during login. Please try again.");
+      const detail = err.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        setError(detail.map((e: any) => e.msg).join(", "));
+      } else {
+        setError(detail || "An error occurred during login. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

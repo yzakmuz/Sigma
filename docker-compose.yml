@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -28,21 +26,20 @@ services:
       - DATABASE_ECHO=true
     volumes:
       - ./backend:/app
+      - ./db:/db
     depends_on:
       mysql:
         condition: service_healthy
     command: sh -c "python math_app/scripts/init_db.py && uvicorn math_app.app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8000
     container_name: math_teaching_frontend
     ports:
-      - "5173:5173"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "5173:80"
     depends_on:
       - api
 

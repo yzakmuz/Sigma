@@ -6,19 +6,56 @@ A modern FastAPI backend for progressive mathematics learning. Designed with cle
 
 ## 🚀 Quick Start
 
-The fastest way to get the full stack (Backend + Database) running is with Docker.
+### Option 1: Full Stack with Docker (Recommended)
+
+The fastest way to get everything running — Backend, Database, and Frontend — with a single command:
 
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
-cd ex1_math
+git clone https://github.com/yzakmuz/Sigma.git
+cd Sigma
 
-# 2. Start the services
-docker-compose up -d
+# 2. Build and start all services
+docker compose up --build -d
 ```
 
-- **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger)
-- **Base URL**: `http://localhost:8000`
+This starts 3 containers:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | [http://localhost:5173](http://localhost:5173) | React app served via Nginx |
+| API | [http://localhost:8000](http://localhost:8000) | FastAPI backend |
+| API Docs | [http://localhost:8000/docs](http://localhost:8000/docs) | Swagger UI |
+| Database | `localhost:3306` | MySQL 8.0 |
+
+```bash
+# Stop all services
+docker compose down
+
+# Stop and delete database data
+docker compose down -v
+
+# View logs
+docker compose logs -f
+```
+
+### Option 2: Docker Backend + Local Frontend
+
+Run the backend and database in Docker, but the frontend locally (useful for frontend development with hot-reload):
+
+```bash
+# 1. Start backend + database
+cd Sigma
+docker compose up --build -d mysql api
+
+# 2. Start frontend locally (in a separate terminal)
+cd Sigma/frontend
+npm install
+npm run dev
+```
+
+- **Frontend**: [http://localhost:5173](http://localhost:5173)
+- **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
@@ -37,7 +74,7 @@ docker-compose up -d
 - **Backend**: Python 3.12, FastAPI, Pydantic, SQLAlchemy.
 - **Database**: MySQL 8.0, Alembic (Migrations).
 - **Tooling**: `uv` (Fast dependency management), Docker & Docker Compose.
-- **Frontend**: Vite, React, TypeScript (Modern frontend boilerplate).
+- **Frontend**: Vite, React 19, TypeScript, Tailwind CSS 4, served via Nginx in production.
 
 ---
 
@@ -45,13 +82,17 @@ docker-compose up -d
 
 ```text
 .
-├── backend/           # FastAPI Service
-│   ├── alembic/       # DB Migrations
-│   ├── math_app/      # Source Code (Core logic & API)
-│   └── tests/         # Pytest Suite
-├── frontend/          # Vite + React Frontend
-├── db/                # Seed Data (sample_db.json)
-└── docker-compose.yml # Service Orchestration
+├── backend/              # FastAPI Service
+│   ├── alembic/          # DB Migrations
+│   ├── math_app/         # Source Code (Core logic & API)
+│   ├── tests/            # Pytest Suite
+│   └── Dockerfile        # Backend container image
+├── frontend/             # Vite + React Frontend
+│   ├── src/              # React source code
+│   ├── Dockerfile        # Frontend container image (multi-stage: Node build + Nginx)
+│   └── nginx.conf        # Nginx config for serving the SPA
+├── db/                   # Seed Data (sample_db.json)
+└── docker-compose.yml    # Service Orchestration (3 services: MySQL, API, Frontend)
 ```
 
 ---

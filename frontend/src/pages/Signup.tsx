@@ -6,7 +6,6 @@ export function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,7 +31,12 @@ export function Signup() {
       localStorage.setItem("auth_token", response.data.access_token);
       navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "An error occurred during sign up. Please try again.");
+      const detail = err.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        setError(detail.map((e: any) => e.msg).join(", "));
+      } else {
+        setError(detail || "An error occurred during sign up. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
