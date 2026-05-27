@@ -81,6 +81,7 @@ class Lesson(BaseModel):
     id: str = Field(..., description="Unique lesson identifier")
     title: str = Field(..., description="Lesson title")
     description: str = Field(..., description="Lesson description")
+    explanation: Optional[str] = Field(None, description="Detailed explanation of the lesson concepts")
     topic: TopicEnum = Field(..., description="Math topic covered")
     level: LevelEnum = Field(..., description="Overall difficulty level")
     problems: list[Problem] = Field(default_factory=list, description="Problems in this lesson")
@@ -91,6 +92,7 @@ class LessonCreate(BaseModel):
     """Input schema for creating a lesson."""
     title: str = Field(..., min_length=1, max_length=200, description="Lesson title")
     description: str = Field(..., min_length=1, description="Lesson description")
+    explanation: Optional[str] = Field(None, description="Detailed explanation of the lesson concepts")
     topic: TopicEnum = Field(..., description="Math topic")
     level: LevelEnum = Field(..., description="Overall difficulty level")
     problems: list[ProblemCreate] = Field(default_factory=list, description="Initial problems for the lesson")
@@ -100,6 +102,7 @@ class LessonUpdate(BaseModel):
     """Input schema for updating a lesson."""
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, min_length=1)
+    explanation: Optional[str] = Field(None)
     topic: Optional[TopicEnum] = None
     level: Optional[LevelEnum] = None
     problems: Optional[list[ProblemCreate]] = None
@@ -110,6 +113,7 @@ class LessonResponse(BaseModel):
     id: str
     title: str
     description: str
+    explanation: Optional[str]
     topic: TopicEnum
     level: LevelEnum
     problems: list[Problem]

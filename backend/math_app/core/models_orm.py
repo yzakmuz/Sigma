@@ -26,6 +26,7 @@ class LessonORM(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
+    explanation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     topic: Mapped[TopicEnum] = mapped_column(SQLEnum(TopicEnum), nullable=False, index=True)
     level: Mapped[LevelEnum] = mapped_column(SQLEnum(LevelEnum), nullable=False, index=True)
     problems_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")  # Stored as JSON string

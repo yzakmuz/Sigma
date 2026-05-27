@@ -32,6 +32,7 @@ from math_app.core.learning_algorithms import (
 from math_app.core.security import get_current_user_from_token
 from math_app.app import auth
 
+# Initialize the FastAPI application
 app = FastAPI(
     title="Math Teaching API",
     description="A simplified backend for teaching math progressively",
@@ -42,14 +43,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins
-    allow_credentials=True,
+    allow_credentials=True, # Allow cookies and authentication
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
 
 # Include auth router
 app.include_router(auth.router)
-
 
 # Dependency: Extract current user from Authorization header
 async def get_current_user(
@@ -72,6 +72,7 @@ async def get_current_user(
     return user
 
 
+# Error handling for custom exceptions
 @app.exception_handler(MathAPIException)
 async def math_api_exception_handler(request: Request, exc: MathAPIException):
     """Handle custom MathAPIException errors."""
@@ -80,7 +81,7 @@ async def math_api_exception_handler(request: Request, exc: MathAPIException):
         content={"detail": exc.message},
     )
 
-
+# Root endpoint with welcome message and available endpoints
 @app.get("/api/help", tags=["root"])
 async def root():
     """Welcome endpoint with available endpoints."""
@@ -107,7 +108,7 @@ async def health_check():
     """Check if the API is running."""
     return JSONResponse({"status": "healthy"})
 
-
+# Lessons endpoints
 @app.get("/lessons", response_model=list[LessonResponse], tags=["lessons"])
 async def list_lessons(
     topic: TopicEnum | None = Query(None, description="Filter by topic"),
@@ -139,6 +140,7 @@ async def list_lessons(
             id=lesson_orm.id,
             title=lesson_orm.title,
             description=lesson_orm.description,
+            explanation=lesson_orm.explanation,
             topic=lesson_orm.topic,
             level=lesson_orm.level,
             problems=problems,
@@ -147,7 +149,7 @@ async def list_lessons(
     
     return result
 
-
+# Endpoint to create a new lesson
 @app.post("/lessons", response_model=LessonResponse, status_code=201, tags=["lessons"])
 async def create_lesson(
     lesson_create: LessonCreate,
@@ -176,6 +178,7 @@ async def create_lesson(
         id=str(uuid4()),
         title=lesson_create.title,
         description=lesson_create.description,
+        explanation=lesson_create.explanation,
         topic=lesson_create.topic,
         level=lesson_create.level,
         problems_json=json.dumps(problems_list),
@@ -192,13 +195,14 @@ async def create_lesson(
         id=lesson_orm.id,
         title=lesson_orm.title,
         description=lesson_orm.description,
+        explanation=lesson_orm.explanation,
         topic=lesson_orm.topic,
         level=lesson_orm.level,
         problems=problems,
         created_at=lesson_orm.created_at,
     )
 
-
+# Endpoint to get a specific lesson by ID
 @app.get("/lessons/{lesson_id}", response_model=LessonResponse, tags=["lessons"])
 async def get_lesson(
     lesson_id: str,
@@ -216,13 +220,14 @@ async def get_lesson(
         id=lesson_orm.id,
         title=lesson_orm.title,
         description=lesson_orm.description,
+        explanation=lesson_orm.explanation,
         topic=lesson_orm.topic,
         level=lesson_orm.level,
         problems=problems,
         created_at=lesson_orm.created_at,
     )
 
-
+# Endpoint to update a lesson
 @app.put("/lessons/{lesson_id}", response_model=LessonResponse, tags=["lessons"])
 async def update_lesson(
     lesson_id: str,
@@ -248,6 +253,7 @@ async def update_lesson(
         [
             lesson_update.title,
             lesson_update.description,
+            lesson_update.explanation,
             lesson_update.topic,
             lesson_update.level,
             lesson_update.problems,
@@ -260,6 +266,8 @@ async def update_lesson(
         lesson_orm.title = lesson_update.title
     if lesson_update.description is not None:
         lesson_orm.description = lesson_update.description
+    if lesson_update.explanation is not None:
+        lesson_orm.explanation = lesson_update.explanation
     if lesson_update.topic is not None:
         lesson_orm.topic = lesson_update.topic
     if lesson_update.level is not None:
@@ -282,13 +290,14 @@ async def update_lesson(
         id=lesson_orm.id,
         title=lesson_orm.title,
         description=lesson_orm.description,
+        explanation=lesson_orm.explanation,
         topic=lesson_orm.topic,
         level=lesson_orm.level,
         problems=problems,
         created_at=lesson_orm.created_at,
     )
 
-
+# Endpoint to delete a lesson
 @app.delete("/lessons/{lesson_id}", status_code=204, tags=["lessons"])
 async def delete_lesson(
     lesson_id: str,
@@ -306,7 +315,7 @@ async def delete_lesson(
     session.delete(lesson_orm)
     session.commit()
 
-
+# Dependency to get current user from token for protected endpoints
 @app.post("/problems/{problem_id}/submit", response_model=dict, status_code=200, tags=["problems"])
 async def submit_problem_answer(
     problem_id: str,
@@ -379,7 +388,7 @@ async def submit_problem_answer(
     
     return response
 
-
+# Endpoint to get a user's attempts for a specific problem
 @app.get("/users/{user_id}/attempts", response_model=list[AttemptResponse], tags=["attempts"])
 async def get_user_attempts(
     user_id: str,
@@ -422,7 +431,7 @@ async def get_user_attempts(
         for attempt in attempts
     ]
 
-
+# Endpoint to get recommended problems for a user based on spaced repetition
 @app.get("/lessons/{lesson_id}/recommended-problems", response_model=list[Problem], tags=["lessons"])
 async def get_recommended_problems(
     lesson_id: str,
@@ -457,7 +466,7 @@ async def get_recommended_problems(
     # Convert to Problem response models
     return [Problem(**p) for p in problems_data]
 
-
+# Endpoint to get user's learning dashboard with statistics and progress
 @app.get("/users/{user_id}/dashboard", response_model=dict, tags=["users"])
 async def get_user_dashboard(
     user_id: str,
@@ -504,7 +513,7 @@ async def get_user_dashboard(
         "next_review_due": next_review_due,
     }
 
-
+# Endpoint to get a progressive hint for a problem based on attempt count
 @app.get("/problems/{problem_id}/hint", response_model=dict, tags=["problems"])
 async def get_progressive_hint(
     problem_id: str,
@@ -553,7 +562,7 @@ async def get_progressive_hint(
     
     return response
 
-
+# Endpoint to get difficulty recommendation for a user on a specific topic
 @app.post("/users/{user_id}/difficulty-recommendation", response_model=dict, tags=["users"])
 async def get_difficulty_recommendation(
     user_id: str,
@@ -617,8 +626,11 @@ if __name__ == "__main__":
 
 import os
 
+# Serve the old frontend if it still exists, otherwise show a message about the new React frontend
 @app.get("/")
 def serve_frontend():
-    # Use path relative to the root of the repo rather than the hardcoded '/app'
-    file_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "frontend", "frontend.html")
+    # Attempt to locate the old frontend.html if it still exists
+    file_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "frontend_old", "frontend.html")
+    if not os.path.exists(file_path):
+        return JSONResponse({"message": "Frontend moved to a React app. Use npm run dev to start it on port 5173."})
     return FileResponse(file_path)
