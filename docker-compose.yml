@@ -33,5 +33,18 @@ services:
         condition: service_healthy
     command: sh -c "python math_app/scripts/init_db.py && uvicorn math_app.app.main:app --host 0.0.0.0 --port 8000 --reload"
 
+  frontend:
+    build: ./frontend
+    container_name: math_teaching_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
 volumes:
   mysql_data:
