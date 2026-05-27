@@ -26,4 +26,8 @@ db/sample_db.json
 # Local gitignore overrides
 .gitignore.local
 
+# Python eggs
+ex1_math.egg-info/
+*.egg-info/
+
 .txt
